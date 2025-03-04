@@ -46,18 +46,22 @@ function fetchData() {
   fetch('/data')
     .then(response => response.json())
     .then(data => {
-      // Handle N/A values
-      const temp = data.temperature === "N/A" ? 0 : parseFloat(data.temperature);
-      const heartRate = data.heartRate === "N/A" ? 0 : parseFloat(data.heartRate);
-      const spo2 = data.spo2 === "N/A" ? 0 : parseFloat(data.spo2);
+      // Handle numeric values and N/A explicitly
+      const temp = data.temperature === "N/A" || isNaN(data.temperature) ? 0 : parseFloat(data.temperature);
+      const heartRate = data.heartRate === "N/A" || isNaN(data.heartRate) ? 0 : parseFloat(data.heartRate);
+      const spo2 = data.spo2 === "N/A" || isNaN(data.spo2) ? 0 : parseFloat(data.spo2);
       const fallStatus = data.fallDetected === "true" ? "Yes" : "No";
       const satellites = data.satellites === "N/A" ? "N/A" : data.satellites;
 
+      // Update gauges
       tempGauge.refresh(temp);
       heartRateGauge.refresh(heartRate);
       spo2Gauge.refresh(spo2);
       document.getElementById('fallStatus').textContent = fallStatus;
       document.getElementById('satellites').textContent = satellites;
+
+      // Log data for debugging (open browser console with F12)
+      console.log("Received data:", data);
     })
     .catch(error => console.error('Error fetching data:', error));
 }
@@ -66,7 +70,7 @@ function updateMap() {
   fetch('/data')
     .then(response => response.json())
     .then(data => {
-      if (data.latitude !== "N/A" && data.longitude !== "N/A") {
+      if (data.latitude !== "N/A" && data.longitude !== "N/A" && !isNaN(data.latitude) && !isNaN(data.longitude)) {
         const lat = parseFloat(data.latitude);
         const lng = parseFloat(data.longitude);
         map.setView([lat, lng], 13);
