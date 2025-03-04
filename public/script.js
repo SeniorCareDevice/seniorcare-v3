@@ -1,6 +1,5 @@
 let tempGauge, heartRateGauge, spo2Gauge, map, marker;
 
-// Initialize gauges
 document.addEventListener('DOMContentLoaded', () => {
   tempGauge = new JustGage({
     id: 'tempGauge',
@@ -27,12 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
     label: '%'
   });
 
-  // Initialize map
-  map = L.map('map').setView([0, 0], 13);
+  // Initialize map with a default view (e.g., India)
+  map = L.map('map').setView([20.5937, 78.9629], 5); // India center
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
+    attribution: '© OpenStreetMap contributors'
   }).addTo(map);
-  marker = L.marker([0, 0]).addTo(map);
+  marker = L.marker([20.5937, 78.9629]).addTo(map);
 
   // Fetch data and update
   fetchData();
@@ -47,11 +46,18 @@ function fetchData() {
   fetch('/data')
     .then(response => response.json())
     .then(data => {
-      tempGauge.refresh(data.temperature !== "N/A" ? data.temperature : 0);
-      heartRateGauge.refresh(data.heartRate !== "N/A" ? data.heartRate : 0);
-      spo2Gauge.refresh(data.spo2 !== "N/A" ? data.spo2 : 0);
-      document.getElementById('fallStatus').textContent = data.fallDetected ? 'Yes' : 'No';
-      document.getElementById('satellites').textContent = data.satellites;
+      // Handle N/A values
+      const temp = data.temperature === "N/A" ? 0 : parseFloat(data.temperature);
+      const heartRate = data.heartRate === "N/A" ? 0 : parseFloat(data.heartRate);
+      const spo2 = data.spo2 === "N/A" ? 0 : parseFloat(data.spo2);
+      const fallStatus = data.fallDetected === "true" ? "Yes" : "No";
+      const satellites = data.satellites === "N/A" ? "N/A" : data.satellites;
+
+      tempGauge.refresh(temp);
+      heartRateGauge.refresh(heartRate);
+      spo2Gauge.refresh(spo2);
+      document.getElementById('fallStatus').textContent = fallStatus;
+      document.getElementById('satellites').textContent = satellites;
     })
     .catch(error => console.error('Error fetching data:', error));
 }
@@ -65,6 +71,9 @@ function updateMap() {
         const lng = parseFloat(data.longitude);
         map.setView([lat, lng], 13);
         marker.setLatLng([lat, lng]);
+      } else {
+        console.log("No valid GPS data available.");
       }
-    });
+    })
+    .catch(error => console.error('Error updating map:', error));
 }
