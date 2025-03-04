@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sensor Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+  <h1>Sensor Dashboard</h1>
+  <div class="gauges">
+    <div id="tempGauge" class="gauge"></div>
+    <div id="heartRateGauge" class="gauge"></div>
+    <div id="spo2Gauge" class="gauge"></div>
+  </div>
+  <div id="map" style="height: 400px;"></div>
+  <div class="controls">
+    <p>Fall Detected: <span id="fallStatus">N/A</span></p>
+    <p>Satellites: <span id="satellites">N/A</span></p>
+    <button id="restartMap">Restart Map</button>
+  </div>
+
+  <script src="https://unpkg.com/justgage@1.4.0/dist/justgage.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
